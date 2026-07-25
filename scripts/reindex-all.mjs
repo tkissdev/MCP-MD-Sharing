@@ -10,36 +10,97 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SER
   auth: { persistSession: false },
 });
 
+// Mirrors lib/chunking.ts (kept in sync manually since this script runs
+// standalone via plain Node, without a TypeScript build step).
+const TARGET_CHARS = 200;
+
 function splitByH2(content) {
   const lines = content.split("\n");
   const sections = [];
+  let heading = null;
   let current = [];
+  let hasContent = false;
+
   for (const line of lines) {
-    if (/^##\s/.test(line) && current.length > 0) {
-      sections.push(current.join("\n"));
-      current = [line];
+    const match = /^##\s+(.*)/.exec(line);
+    if (match) {
+      if (hasContent || heading !== null) sections.push({ heading, body: current.join("\n") });
+      heading = match[1].trim();
+      current = [];
+      hasContent = false;
     } else {
       current.push(line);
+      if (line.trim().length > 0) hasContent = true;
     }
   }
-  if (current.length > 0) sections.push(current.join("\n"));
+  if (hasContent || heading !== null) sections.push({ heading, body: current.join("\n") });
   return sections;
 }
 
-function splitByWordCount(text, maxWords) {
-  const words = text.split(/\s+/).filter(Boolean);
-  if (words.length <= maxWords) return [text];
-  const chunks = [];
-  for (let i = 0; i < words.length; i += maxWords) {
-    chunks.push(words.slice(i, i + maxWords).join(" "));
+function splitIntoParagraphs(text) {
+  return text.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+}
+
+function splitIntoSentences(text) {
+  const normalized = text.replace(/\s+/g, " ").trim();
+  if (!normalized) return [];
+  const matches = normalized.match(/[^.!?]+(?:[.!?]+(?=\s|$))?/g);
+  return (matches ?? [normalized]).map((s) => s.trim()).filter(Boolean);
+}
+
+function paragraphToUnits(paragraph, budget) {
+  const lines = paragraph.split("\n").map((l) => l.trim()).filter(Boolean);
+  const units = [];
+  for (const line of lines) {
+    if (line.length <= budget) {
+      units.push(line);
+    } else {
+      units.push(...splitIntoSentences(line));
+    }
   }
+  return units;
+}
+
+function packUnits(units, budget) {
+  const chunks = [];
+  let current = "";
+  let lastUnit = "";
+
+  for (const unit of units) {
+    if (current.length === 0) {
+      current = unit;
+      lastUnit = unit;
+      continue;
+    }
+    const candidate = `${current} ${unit}`;
+    if (candidate.length <= budget) {
+      current = candidate;
+      lastUnit = unit;
+    } else {
+      chunks.push(current);
+      current = `${lastUnit} ${unit}`;
+      lastUnit = unit;
+    }
+  }
+  if (current) chunks.push(current);
   return chunks;
 }
 
-function chunkMarkdown(content, maxWords = 500) {
-  const sections = splitByH2(content).filter((s) => s.trim().length > 0);
-  const base = sections.length > 1 ? sections : [content];
-  return base.flatMap((s) => splitByWordCount(s, maxWords)).filter((s) => s.trim().length > 0);
+function chunkMarkdown(content) {
+  const sections = splitByH2(content);
+  const chunks = [];
+
+  for (const section of sections) {
+    const prefix = section.heading ? `## ${section.heading}\n\n` : "";
+    const budget = Math.max(TARGET_CHARS - prefix.length, 50);
+
+    const units = splitIntoParagraphs(section.body).flatMap((p) => paragraphToUnits(p, budget));
+    if (units.length === 0) continue;
+
+    for (const piece of packUnits(units, budget)) chunks.push(`${prefix}${piece}`);
+  }
+
+  return chunks;
 }
 
 const { data: documents, error: docsError } = await supabase
@@ -48,40 +109,44 @@ const { data: documents, error: docsError } = await supabase
 if (docsError) throw docsError;
 
 for (const doc of documents) {
-  const { data: version, error: versionError } = await supabase
-    .from("versions")
-    .select("content")
-    .eq("document_id", doc.id)
-    .eq("version_number", doc.current_version)
-    .single();
-  if (versionError) throw versionError;
+  try {
+    const { data: version, error: versionError } = await supabase
+      .from("versions")
+      .select("content")
+      .eq("document_id", doc.id)
+      .eq("version_number", doc.current_version)
+      .single();
+    if (versionError) throw versionError;
 
-  const pieces = chunkMarkdown(version.content);
-  await supabase.from("chunks").delete().eq("document_id", doc.id);
+    const pieces = chunkMarkdown(version.content);
+    await supabase.from("chunks").delete().eq("document_id", doc.id);
 
-  if (pieces.length === 0) {
-    console.log(`skip (empty): ${doc.path}`);
-    continue;
+    if (pieces.length === 0) {
+      console.log(`skip (empty): ${doc.path}`);
+      continue;
+    }
+
+    const { data: embedData, error: embedError } = await supabase.functions.invoke("embed", {
+      body: { texts: pieces },
+    });
+    if (embedError) throw new Error(embedError.message);
+    if (embedData.error) throw new Error(embedData.error);
+
+    const rows = pieces.map((text, i) => ({
+      document_id: doc.id,
+      version_number: doc.current_version,
+      chunk_index: i,
+      content: text,
+      embedding: embedData.embeddings[i],
+    }));
+
+    const { error: insertError } = await supabase.from("chunks").insert(rows);
+    if (insertError) throw new Error(insertError.message);
+
+    console.log(`indexed: ${doc.path} (${pieces.length} chunks)`);
+  } catch (err) {
+    console.error(`failed: ${doc.path}: ${err.message}`);
   }
-
-  const { data: embedData, error: embedError } = await supabase.functions.invoke("embed", {
-    body: { texts: pieces },
-  });
-  if (embedError) throw new Error(`${doc.path}: ${embedError.message}`);
-  if (embedData.error) throw new Error(`${doc.path}: ${embedData.error}`);
-
-  const rows = pieces.map((text, i) => ({
-    document_id: doc.id,
-    version_number: doc.current_version,
-    chunk_index: i,
-    content: text,
-    embedding: embedData.embeddings[i],
-  }));
-
-  const { error: insertError } = await supabase.from("chunks").insert(rows);
-  if (insertError) throw new Error(`${doc.path}: ${insertError.message}`);
-
-  console.log(`indexed: ${doc.path} (${pieces.length} chunks)`);
 }
 
 console.log("Done.");
