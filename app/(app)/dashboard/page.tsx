@@ -2,9 +2,9 @@ import { redirect } from "next/navigation";
 import { getServerClient } from "@/lib/supabase-server";
 import { getLocale } from "@/lib/i18n/get-locale";
 import { t } from "@/lib/i18n/dictionary";
-import { CreateOrgForm } from "./create-org-form";
+import { CreateOrgForm } from "../create-org-form";
 
-export default async function HomePage() {
+export default async function DashboardPage() {
   const supabase = await getServerClient();
   const {
     data: { user },

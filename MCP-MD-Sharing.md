@@ -2,7 +2,7 @@
 
 A platform for sharing and managing Markdown documentation across teams — accessible both through a web app and directly from AI coding agents (Claude Code, Cursor, Codex...) via the Model Context Protocol (MCP).
 
-**Live app:** https://mcp-md-sharing.vercel.app
+**Live app:** https://mcp-md-sharing.tkissdev.com
 **Repository:** https://github.com/timothekiss/MCP-MD-Sharing
 
 ## What it does
@@ -52,7 +52,7 @@ api_keys (personal, hashed, revocable — used for MCP authentication)
 
 ## MCP server
 
-**Endpoint:** `https://mcp-md-sharing.vercel.app/api/mcp`
+**Endpoint:** `https://mcp-md-sharing.tkissdev.com/api/mcp`
 **Auth:** personal API key (generate one from the web app's "API Keys" page), sent as `Authorization: Bearer <key>`
 
 Tools exposed to agents:
@@ -71,7 +71,7 @@ Tools exposed to agents:
 
 Connect from Claude Code:
 ```
-claude mcp add --transport http mcp-md-sharing https://mcp-md-sharing.vercel.app/api/mcp --header "Authorization: Bearer <your-api-key>"
+claude mcp add --transport http mcp-md-sharing https://mcp-md-sharing.tkissdev.com/api/mcp --header "Authorization: Bearer <your-api-key>"
 ```
 
 ## Web app features

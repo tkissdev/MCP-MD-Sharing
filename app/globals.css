@@ -505,6 +505,257 @@ pre {
   background: var(--surface);
 }
 
+/* Public landing / marketing pages */
+
+.landing {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+.landing-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 16px 40px;
+  border-bottom: 1px solid var(--border);
+}
+
+.landing-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.landing-logo:hover {
+  text-decoration: none;
+}
+
+.landing-logo img {
+  height: 36px;
+  width: 36px;
+  border-radius: 8px;
+}
+
+.landing-logo-text {
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.landing-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.landing-nav .language-switcher {
+  padding: 0 10px 0 0;
+}
+
+.landing-nav-link {
+  padding: 7px 14px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.landing-nav-link:hover {
+  color: var(--text);
+  background: var(--surface-hover);
+  text-decoration: none;
+}
+
+.landing-nav-cta {
+  padding: 7px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  background: var(--accent);
+}
+
+.landing-nav-cta:hover {
+  background: var(--accent-hover);
+  text-decoration: none;
+}
+
+.landing-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 72px;
+  padding: 90px 40px;
+}
+
+.landing-hero {
+  position: relative;
+  max-width: 640px;
+  text-align: center;
+}
+
+.landing-hero-glow {
+  pointer-events: none;
+  position: absolute;
+  left: 50%;
+  top: -70px;
+  width: 480px;
+  height: 280px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, rgba(79, 109, 245, 0.25) 0%, transparent 70%);
+}
+
+.landing-hero h1 {
+  position: relative;
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1.25;
+  margin: 0 0 20px;
+  letter-spacing: -0.02em;
+}
+
+.landing-hero-accent {
+  background: linear-gradient(135deg, #7d95f7, #a7c2ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.landing-hero p {
+  position: relative;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin: 0 0 32px;
+}
+
+.landing-hero-actions {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.landing-btn-primary,
+.landing-btn-secondary {
+  padding: 12px 26px;
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.landing-btn-primary {
+  color: white;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+.landing-btn-primary:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+  text-decoration: none;
+}
+
+.landing-btn-secondary {
+  font-weight: 500;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+}
+
+.landing-btn-secondary:hover {
+  background: var(--surface-hover);
+  text-decoration: none;
+}
+
+.landing-features {
+  display: grid;
+  width: 100%;
+  max-width: 1080px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (min-width: 720px) {
+  .landing-features {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .landing-features {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+.landing-feature-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  transition: border-color 0.15s ease;
+}
+
+.landing-feature-card:hover {
+  border-color: var(--accent);
+}
+
+.landing-feature-card svg {
+  width: 22px;
+  height: 22px;
+  color: var(--accent);
+}
+
+.landing-feature-card h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.landing-feature-card p {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.landing-placeholder {
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.landing-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 18px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.landing-footer a {
+  color: var(--text-muted);
+}
+
+.landing-footer a:hover {
+  color: var(--text);
+}
+
 /* Inline (character-level) segments within a modified line */
 
 .diff-seg-same {

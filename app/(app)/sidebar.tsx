@@ -67,7 +67,7 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
   return (
     <aside className={`sidebar ${collapsed ? "sidebar-collapsed" : ""}`}>
       <div className="sidebar-top">
-        <Link href="/" className="sidebar-brand">
+        <Link href="/dashboard" className="sidebar-brand">
           {collapsed ? "M" : t("nav.brand")}
         </Link>
         <button
