@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getBrowserClient } from "@/lib/supabase-browser";
 import { PublicLocaleProvider, usePublicLocale } from "../public-locale";
+import { SiteFooter } from "../site-footer";
 
 const GoogleIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -167,6 +168,8 @@ function AuthForm() {
           </p>
         </div>
       </div>
+
+      <SiteFooter t={t} />
     </div>
   );
 }

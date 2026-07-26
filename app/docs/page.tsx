@@ -24,7 +24,7 @@ function Content() {
           <p>{t("landing.comingSoon")}</p>
         </section>
       </main>
-      <SiteFooter />
+      <SiteFooter t={t} />
     </div>
   );
 }

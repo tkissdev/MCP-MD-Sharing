@@ -96,7 +96,7 @@ function Landing() {
         </section>
       </main>
 
-      <SiteFooter />
+      <SiteFooter t={t} />
     </div>
   );
 }

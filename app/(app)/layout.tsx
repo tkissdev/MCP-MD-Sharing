@@ -2,6 +2,7 @@ import { getServerClient } from "@/lib/supabase-server";
 import { getLocale } from "@/lib/i18n/get-locale";
 import { Sidebar } from "./sidebar";
 import { LocaleProvider } from "./locale-context";
+import { AppFooter } from "./app-footer";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await getServerClient();
@@ -15,6 +16,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <Sidebar userEmail={user?.email} />
         <div className="main">
           <div className="page">{children}</div>
+          <AppFooter />
         </div>
       </div>
     </LocaleProvider>

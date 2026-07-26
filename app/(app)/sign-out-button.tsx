@@ -15,7 +15,11 @@ export function SignOutButton({ iconOnly }: { iconOnly?: boolean }) {
   }
 
   return (
-    <button onClick={handleSignOut} title={iconOnly ? t("nav.signOut") : undefined}>
+    <button
+      className="sidebar-signout-btn"
+      onClick={handleSignOut}
+      title={iconOnly ? t("nav.signOut") : undefined}
+    >
       {iconOnly ? "⎋" : t("nav.signOut")}
     </button>
   );

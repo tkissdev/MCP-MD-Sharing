@@ -98,7 +98,14 @@ h3 {
 .main {
   flex: 1;
   min-width: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   margin-left: var(--sidebar-width);
+}
+
+.main .page {
+  flex: 1;
 }
 
 .shell:has(.sidebar-collapsed) .main {
@@ -120,15 +127,16 @@ h3 {
 }
 
 .sidebar-brand {
-  font-weight: 700;
-  font-size: 16px;
-  letter-spacing: -0.01em;
-  white-space: nowrap;
+  display: flex;
   overflow: hidden;
 }
 
 .sidebar-brand:hover {
   text-decoration: none;
+}
+
+.sidebar-brand img {
+  border-radius: 8px;
 }
 
 .sidebar-toggle {
@@ -184,31 +192,75 @@ h3 {
   padding: 9px;
 }
 
-.sidebar-footer {
-  border-top: 1px solid var(--border);
-  padding-top: 14px;
-  margin-top: 14px;
+.sidebar-link-active {
+  background: var(--accent-soft);
+  color: var(--accent-hover);
 }
 
-.sidebar-footer {
+.sidebar-link-active:hover {
+  background: var(--accent-soft);
+  color: var(--accent-hover);
+}
+
+.sidebar-account {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 10px;
+  margin-bottom: 10px;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.sidebar-collapsed .sidebar-footer {
+.sidebar-collapsed .sidebar-account {
   align-items: center;
+  padding: 14px 0;
 }
 
-.sidebar-collapsed .sidebar-footer button {
-  padding: 8px 10px;
+.sidebar-avatar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.sidebar-user {
-  font-size: 13px;
+.sidebar-avatar {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-user-email {
+  font-size: 12px;
   color: var(--text-muted);
-  padding: 0 10px 10px;
-  overflow-wrap: anywhere;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar-signout-btn {
+  width: 100%;
+  font-size: 12.5px;
+  padding: 7px 10px;
+  background: transparent;
+  border-radius: var(--radius);
+}
+
+.sidebar-signout-btn:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.sidebar-collapsed .sidebar-signout-btn {
+  width: auto;
+  padding: 7px;
 }
 
 .language-switcher {
@@ -762,10 +814,14 @@ pre {
   position: relative;
   min-height: 100vh;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
+  flex-direction: column;
+  padding: 24px 24px 0;
   overflow: hidden;
+}
+
+.auth-page .landing-footer {
+  border-top: none;
+  padding-bottom: 18px;
 }
 
 .auth-page-glow {
@@ -787,11 +843,14 @@ pre {
 
 .auth-content {
   position: relative;
+  flex: 1;
   width: 100%;
   max-width: 400px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
 }
 
 .auth-logo {
