@@ -76,10 +76,10 @@ function Landing() {
             {t("landing.heroSub2")}
           </p>
           <div className="landing-hero-actions">
-            <Link href="/login?mode=sign-up" className="landing-btn-primary">
+            <Link href="/auth?mode=sign-up" className="landing-btn-primary">
               {t("landing.start")}
             </Link>
-            <Link href="/login" className="landing-btn-secondary">
+            <Link href="/auth" className="landing-btn-secondary">
               {t("landing.signin")}
             </Link>
           </div>

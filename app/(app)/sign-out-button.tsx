@@ -10,7 +10,7 @@ export function SignOutButton({ iconOnly }: { iconOnly?: boolean }) {
 
   async function handleSignOut() {
     await getBrowserClient().auth.signOut();
-    router.push("/login");
+    router.push("/auth");
     router.refresh();
   }
 

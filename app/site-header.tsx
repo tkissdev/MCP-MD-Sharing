@@ -35,10 +35,10 @@ export function SiteHeader() {
         <Link href="/docs" className="landing-nav-link">
           {t("landing.docs")}
         </Link>
-        <Link href="/login" className="landing-nav-link">
+        <Link href="/auth" className="landing-nav-link">
           {t("landing.signin")}
         </Link>
-        <Link href="/login?mode=sign-up" className="landing-nav-cta">
+        <Link href="/auth?mode=sign-up" className="landing-nav-cta">
           {t("landing.createAccount")}
         </Link>
       </nav>
