@@ -5,7 +5,15 @@ import { useRouter } from "next/navigation";
 import { getBrowserClient } from "@/lib/supabase-browser";
 import { useLocale } from "../locale-context";
 
-export function RemoveOrgMemberButton({ orgId, userId }: { orgId: string; userId: string }) {
+export function RemoveOrgMemberButton({
+  orgId,
+  userId,
+  onChanged,
+}: {
+  orgId: string;
+  userId: string;
+  onChanged?: () => void;
+}) {
   const router = useRouter();
   const { t } = useLocale();
   const [loading, setLoading] = useState(false);
@@ -15,6 +23,7 @@ export function RemoveOrgMemberButton({ orgId, userId }: { orgId: string; userId
     await getBrowserClient().rpc("remove_org_member", { p_org_id: orgId, p_user_id: userId });
     setLoading(false);
     router.refresh();
+    onChanged?.();
   }
 
   return (

@@ -5,7 +5,13 @@ import { useRouter } from "next/navigation";
 import { getBrowserClient } from "@/lib/supabase-browser";
 import { useLocale } from "./locale-context";
 
-export function CreateOrgForm({ redirectTo }: { redirectTo?: string }) {
+export function CreateOrgForm({
+  redirectTo,
+  onCreated,
+}: {
+  redirectTo?: string;
+  onCreated?: () => void;
+}) {
   const router = useRouter();
   const { t } = useLocale();
   const [name, setName] = useState("");
@@ -26,8 +32,13 @@ export function CreateOrgForm({ redirectTo }: { redirectTo?: string }) {
     }
 
     setName("");
-    if (redirectTo) router.push(redirectTo);
-    router.refresh();
+    if (onCreated) {
+      router.refresh();
+      onCreated();
+    } else {
+      if (redirectTo) router.push(redirectTo);
+      router.refresh();
+    }
   }
 
   return (
