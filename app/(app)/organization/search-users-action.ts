@@ -4,10 +4,9 @@ import { getServerClient } from "@/lib/supabase-server";
 import { getServiceClient } from "@/lib/supabase";
 
 // Only people who already have an account can be added as a member — this
-// searches existing Supabase Auth users by email so the picker only ever
-// offers valid choices, instead of a free-text field that fails after the
-// fact with "no account exists for this email".
-export async function searchOrgCandidateUsers(orgId: string, query: string): Promise<string[]> {
+// lists existing Supabase Auth users (minus those already in the org) so the
+// dropdown only ever offers valid, not-yet-added choices.
+export async function listOrgCandidateUsers(orgId: string): Promise<string[]> {
   const supabase = await getServerClient();
   const {
     data: { user },
@@ -24,9 +23,6 @@ export async function searchOrgCandidateUsers(orgId: string, query: string): Pro
     throw new Error("Requires owner or admin access to this organization");
   }
 
-  const q = query.trim().toLowerCase();
-  if (q.length === 0) return [];
-
   const admin = getServiceClient();
   const { data: userList, error } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
   if (error) throw new Error(error.message);
@@ -35,7 +31,7 @@ export async function searchOrgCandidateUsers(orgId: string, query: string): Pro
   const existingIds = new Set((existingMembers ?? []).map((m) => m.user_id));
 
   return userList.users
-    .filter((u) => u.email && u.email.toLowerCase().includes(q) && !existingIds.has(u.id))
-    .slice(0, 8)
-    .map((u) => u.email!);
+    .filter((u) => u.email && !existingIds.has(u.id))
+    .map((u) => u.email!)
+    .sort((a, b) => a.localeCompare(b));
 }

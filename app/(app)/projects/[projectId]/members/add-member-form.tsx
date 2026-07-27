@@ -18,14 +18,31 @@ export function AddProjectMemberForm({
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("reader");
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setSuccess(false);
 
-    const { error } = await getBrowserClient().rpc("add_project_member", {
+    const supabase = getBrowserClient();
+
+    // add_project_member upserts the role rather than rejecting an existing
+    // member — check first so re-adding someone already there shows a clear
+    // message instead of silently changing their role.
+    const { data: existing } = await supabase.rpc("list_project_members", { p_project_id: projectId });
+    const alreadyMember = (existing ?? []).some(
+      (m: { email: string }) => m.email.toLowerCase() === email.trim().toLowerCase()
+    );
+    if (alreadyMember) {
+      setLoading(false);
+      setError(t("memberError.alreadyMember"));
+      return;
+    }
+
+    const { error } = await supabase.rpc("add_project_member", {
       p_project_id: projectId,
       p_email: email,
       p_role: role,
@@ -38,6 +55,7 @@ export function AddProjectMemberForm({
     }
 
     setEmail("");
+    setSuccess(true);
     router.refresh();
     onChanged?.();
   }
@@ -47,7 +65,15 @@ export function AddProjectMemberForm({
       <label>
         {t("org.email")}
         <br />
-        <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+        <input
+          type="email"
+          required
+          value={email}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            setSuccess(false);
+          }}
+        />
       </label>
       <label>
         {t("org.role")}
@@ -59,6 +85,7 @@ export function AddProjectMemberForm({
         </select>
       </label>
       {error && <p className="error">{error}</p>}
+      {success && <p className="success-msg">{t("org.memberAdded")}</p>}
       <button type="submit" disabled={loading}>
         {t("members.add")}
       </button>

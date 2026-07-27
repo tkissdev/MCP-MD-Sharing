@@ -478,6 +478,11 @@ button.danger:hover {
   font-size: 13px;
 }
 
+.success-msg {
+  color: var(--success);
+  font-size: 13px;
+}
+
 pre {
   background: var(--bg);
   border: 1px solid var(--border);
