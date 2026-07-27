@@ -808,6 +808,38 @@ pre {
   color: var(--text);
 }
 
+/* Email/user picker (autocomplete dropdown) */
+
+.user-picker-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 5;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.user-picker-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 9px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.user-picker-option:hover {
+  background: var(--surface-hover);
+  filter: none;
+}
+
 /* Projects table page */
 
 .projects-toolbar {
@@ -1132,6 +1164,156 @@ pre {
 
 .doc-modal-box textarea {
   min-height: 420px;
+}
+
+/* Docs page (/docs) */
+
+.docs-page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 56px 24px 80px;
+  width: 100%;
+}
+
+.docs-search-wrap {
+  margin-bottom: 36px;
+}
+
+.doc-section {
+  margin-top: 40px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.doc-section:first-of-type {
+  border-top: none;
+  margin-top: 24px;
+}
+
+.doc-section-hidden {
+  display: none;
+}
+
+.doc-section h2 {
+  font-size: 20px;
+}
+
+.doc-section h3 {
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--text);
+  font-size: 15px;
+  margin-top: 20px;
+}
+
+.doc-section p,
+.doc-section li {
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.doc-section ul,
+.doc-section ol {
+  padding-left: 20px;
+  margin: 8px 0;
+}
+
+.doc-section li {
+  margin-bottom: 6px;
+}
+
+.doc-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+  font-size: 13px;
+}
+
+.doc-table th,
+.doc-table td {
+  text-align: left;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.doc-table th {
+  background: var(--surface-hover);
+  color: var(--text-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.doc-table td code {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 12px;
+}
+
+.doc-no-results {
+  color: var(--text-muted);
+  margin-top: 24px;
+}
+
+/* Legal pages (/privacy) */
+
+.legal-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 56px 24px 80px;
+  width: 100%;
+}
+
+.legal-back {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin-bottom: 32px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.legal-back:hover {
+  color: var(--text);
+  filter: none;
+}
+
+.legal-updated {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin: 0 0 32px;
+}
+
+.legal-section {
+  margin-top: 28px;
+}
+
+.legal-section p,
+.legal-section ul {
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.legal-section ul {
+  padding-left: 20px;
+  margin: 8px 0;
+}
+
+.legal-section li {
+  margin-bottom: 6px;
+}
+
+.legal-section code {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 12.5px;
 }
 
 /* Auth page (/auth) */

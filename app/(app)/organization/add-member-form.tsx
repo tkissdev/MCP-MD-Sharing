@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getBrowserClient } from "@/lib/supabase-browser";
+import { formatAddMemberError } from "@/lib/member-errors";
+import { UserEmailPicker } from "./user-email-picker";
 import { useLocale } from "../locale-context";
 
 export function AddOrgMemberForm({ orgId, onChanged }: { orgId: string; onChanged?: () => void }) {
@@ -26,7 +28,7 @@ export function AddOrgMemberForm({ orgId, onChanged }: { orgId: string; onChange
 
     setLoading(false);
     if (error) {
-      setError(error.message);
+      setError(formatAddMemberError(error.message, t));
       return;
     }
 
@@ -40,7 +42,7 @@ export function AddOrgMemberForm({ orgId, onChanged }: { orgId: string; onChange
       <label>
         {t("org.email")}
         <br />
-        <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+        <UserEmailPicker orgId={orgId} value={email} onChange={setEmail} />
       </label>
       <label>
         {t("org.role")}

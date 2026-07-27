@@ -13,7 +13,7 @@ const dictionary = {
     "nav.collapse": "Collapse sidebar",
     "nav.expand": "Expand sidebar",
 
-    "landing.docs": "Documentation / Wiki",
+    "landing.docs": "Documentation",
     "landing.signin": "Sign in",
     "landing.createAccount": "Create account",
     "landing.hero1": "Share your Markdown docs,",
@@ -63,6 +63,8 @@ const dictionary = {
     "org.email": "Email",
     "org.role": "Role",
     "org.remove": "Remove",
+    "memberError.userNotFound": "No account exists for this email yet. Ask them to sign up first, then try again.",
+    "memberError.alreadyMember": "This person is already a member.",
     "org.search": "Search organizations…",
     "org.colOrganization": "Organization",
     "org.colProjects": "Projects",
@@ -107,6 +109,8 @@ const dictionary = {
     "common.cancel": "Cancel",
     "common.save": "Save",
     "common.close": "Close",
+    "common.copy": "Copy",
+    "common.copied": "Copied!",
     "common.confirmDelete": "Delete",
 
     "project.manageMembers": "Manage members",
@@ -167,7 +171,7 @@ const dictionary = {
     "nav.collapse": "Réduire la barre latérale",
     "nav.expand": "Déplier la barre latérale",
 
-    "landing.docs": "Documentation / Wiki",
+    "landing.docs": "Documentation",
     "landing.signin": "Connexion",
     "landing.createAccount": "Créer un compte",
     "landing.hero1": "Partagez votre documentation Markdown,",
@@ -217,6 +221,8 @@ const dictionary = {
     "org.email": "Email",
     "org.role": "Rôle",
     "org.remove": "Retirer",
+    "memberError.userNotFound": "Aucun compte n'existe encore pour cet email. Demandez à la personne de créer un compte, puis réessayez.",
+    "memberError.alreadyMember": "Cette personne est déjà membre.",
     "org.search": "Rechercher une organisation…",
     "org.colOrganization": "Organisation",
     "org.colProjects": "Projets",
@@ -261,6 +267,8 @@ const dictionary = {
     "common.cancel": "Annuler",
     "common.save": "Enregistrer",
     "common.close": "Fermer",
+    "common.copy": "Copier",
+    "common.copied": "Copié !",
     "common.confirmDelete": "Supprimer",
 
     "project.manageMembers": "Gérer les membres",

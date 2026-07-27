@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getBrowserClient } from "@/lib/supabase-browser";
+import { formatAddMemberError } from "@/lib/member-errors";
 import { useLocale } from "../../../locale-context";
 
 export function AddProjectMemberForm({
@@ -32,7 +33,7 @@ export function AddProjectMemberForm({
 
     setLoading(false);
     if (error) {
-      setError(error.message);
+      setError(formatAddMemberError(error.message, t));
       return;
     }
 

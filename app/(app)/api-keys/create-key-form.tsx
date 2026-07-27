@@ -24,6 +24,19 @@ export function CreateApiKeyForm() {
   const [createdKey, setCreatedKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  async function handleCopy() {
+    if (!createdKey) return;
+    try {
+      await navigator.clipboard.writeText(createdKey);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard access can be denied (insecure context, browser/site
+      // settings) — the key is still fully visible above to copy by hand.
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -60,7 +73,10 @@ export function CreateApiKeyForm() {
       <div>
         <p>{t("apiKeys.copyNotice")}</p>
         <pre className="card">{createdKey}</pre>
-        <button onClick={() => setCreatedKey(null)}>{t("apiKeys.done")}</button>
+        <div className="row">
+          <button onClick={handleCopy}>{copied ? t("common.copied") : t("common.copy")}</button>
+          <button onClick={() => setCreatedKey(null)}>{t("apiKeys.done")}</button>
+        </div>
       </div>
     );
   }
