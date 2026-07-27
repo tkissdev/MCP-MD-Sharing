@@ -10,11 +10,13 @@ export function DocumentEditor({
   path,
   content,
   currentVersion,
+  onSaved,
 }: {
   projectId: string;
   path: string;
   content: string;
   currentVersion: number;
+  onSaved?: () => void;
 }) {
   const router = useRouter();
   const { t } = useLocale();
@@ -30,6 +32,7 @@ export function DocumentEditor({
     try {
       await updateDocumentAction(projectId, path, value, currentVersion, message || undefined);
       router.refresh();
+      onSaved?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {

@@ -18,11 +18,13 @@ export function VersionHistory({
   path,
   currentVersion,
   history,
+  onRestored,
 }: {
   projectId: string;
   path: string;
   currentVersion: number;
   history: HistoryEntry[];
+  onRestored?: () => void;
 }) {
   const router = useRouter();
   const { t } = useLocale();
@@ -61,6 +63,7 @@ export function VersionHistory({
     try {
       await restoreVersionAction(projectId, path, versionNumber, currentVersion);
       router.refresh();
+      onRestored?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {

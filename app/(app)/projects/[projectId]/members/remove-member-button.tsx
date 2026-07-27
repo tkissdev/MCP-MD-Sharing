@@ -5,7 +5,15 @@ import { useRouter } from "next/navigation";
 import { getBrowserClient } from "@/lib/supabase-browser";
 import { useLocale } from "../../../locale-context";
 
-export function RemoveProjectMemberButton({ projectId, userId }: { projectId: string; userId: string }) {
+export function RemoveProjectMemberButton({
+  projectId,
+  userId,
+  onChanged,
+}: {
+  projectId: string;
+  userId: string;
+  onChanged?: () => void;
+}) {
   const router = useRouter();
   const { t } = useLocale();
   const [loading, setLoading] = useState(false);
@@ -15,6 +23,7 @@ export function RemoveProjectMemberButton({ projectId, userId }: { projectId: st
     await getBrowserClient().rpc("remove_project_member", { p_project_id: projectId, p_user_id: userId });
     setLoading(false);
     router.refresh();
+    onChanged?.();
   }
 
   return (

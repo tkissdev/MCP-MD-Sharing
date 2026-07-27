@@ -5,7 +5,13 @@ import { useRouter } from "next/navigation";
 import { createDocumentAction } from "./actions";
 import { useLocale } from "../../locale-context";
 
-export function NewDocumentForm({ projectId }: { projectId: string }) {
+export function NewDocumentForm({
+  projectId,
+  onCreated,
+}: {
+  projectId: string;
+  onCreated?: () => void;
+}) {
   const router = useRouter();
   const { t } = useLocale();
   const [path, setPath] = useState("");
@@ -20,8 +26,13 @@ export function NewDocumentForm({ projectId }: { projectId: string }) {
 
     try {
       await createDocumentAction(projectId, path, content);
-      router.push(`/projects/${projectId}/docs/${path}`);
-      router.refresh();
+      if (onCreated) {
+        router.refresh();
+        onCreated();
+      } else {
+        router.push(`/projects/${projectId}/docs/${path}`);
+        router.refresh();
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {

@@ -13,7 +13,7 @@ interface UploadEntry {
   message?: string;
 }
 
-export function UploadMdForm({ projectId }: { projectId: string }) {
+export function UploadMdForm({ projectId, onUploaded }: { projectId: string; onUploaded?: () => void }) {
   const router = useRouter();
   const { t } = useLocale();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -44,6 +44,7 @@ export function UploadMdForm({ projectId }: { projectId: string }) {
 
     setBusy(false);
     router.refresh();
+    onUploaded?.();
 
     if (skipped > 0) {
       setUploads((prev) => [...prev, { name: `${skipped} non-.md file(s)`, status: "error", message: "Skipped — only .md files are supported" }]);

@@ -5,7 +5,13 @@ import { useRouter } from "next/navigation";
 import { getBrowserClient } from "@/lib/supabase-browser";
 import { useLocale } from "../../../locale-context";
 
-export function AddProjectMemberForm({ projectId }: { projectId: string }) {
+export function AddProjectMemberForm({
+  projectId,
+  onChanged,
+}: {
+  projectId: string;
+  onChanged?: () => void;
+}) {
   const router = useRouter();
   const { t } = useLocale();
   const [email, setEmail] = useState("");
@@ -32,6 +38,7 @@ export function AddProjectMemberForm({ projectId }: { projectId: string }) {
 
     setEmail("");
     router.refresh();
+    onChanged?.();
   }
 
   return (
