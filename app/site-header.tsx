@@ -10,8 +10,7 @@ export function SiteHeader() {
   return (
     <header className="landing-header">
       <Link href="/" className="landing-logo">
-        <Image src="/MCP-MD-Sharing-logo-FullBlue-cutout.png" alt="MCP-MD-Sharing" width={36} height={36} priority />
-        <span className="landing-logo-text">MCP-MD-Sharing</span>
+        <Image src="/MCP-MD-Sharing-logo-FullBlue-cutout.png" alt="MCP-MD-Sharing" width={140} height={140} priority />
       </Link>
       <nav className="landing-nav">
         <div className="language-switcher">
