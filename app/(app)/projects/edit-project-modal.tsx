@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { renameProjectAction, moveProjectOrgAction } from "./project-actions";
 import { useLocale } from "../locale-context";
 
@@ -35,9 +36,12 @@ export function EditProjectModal({
     setNameError(null);
     try {
       await renameProjectAction(projectId, name);
+      toast.success(t("toast.projectRenamed"));
       router.refresh();
     } catch (err) {
-      setNameError(err instanceof Error ? err.message : String(err));
+      const msg = err instanceof Error ? err.message : String(err);
+      setNameError(msg);
+      toast.error(msg);
     } finally {
       setNameSaving(false);
     }
@@ -49,9 +53,12 @@ export function EditProjectModal({
     setOrgError(null);
     try {
       await moveProjectOrgAction(projectId, orgId);
+      toast.success(t("toast.projectMoved"));
       router.refresh();
     } catch (err) {
-      setOrgError(err instanceof Error ? err.message : String(err));
+      const msg = err instanceof Error ? err.message : String(err);
+      setOrgError(msg);
+      toast.error(msg);
     } finally {
       setOrgSaving(false);
     }
@@ -69,7 +76,7 @@ export function EditProjectModal({
       <div className="modal-box" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>{t("projects.editProject")}</h2>
-          <button className="icon-btn" onClick={onClose} aria-label={t("common.close")}>
+          <button className="icon-btn" onClick={onClose} aria-label={t("common.close")} data-tooltip={t("common.close")}>
             <CloseIcon />
           </button>
         </div>

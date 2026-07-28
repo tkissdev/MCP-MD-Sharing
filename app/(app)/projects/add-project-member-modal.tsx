@@ -19,7 +19,7 @@ export function AddProjectMemberModal({
       <div className="modal-box" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>{t("members.add")}</h2>
-          <button className="icon-btn" onClick={onClose} aria-label={t("common.close")}>
+          <button className="icon-btn" onClick={onClose} aria-label={t("common.close")} data-tooltip={t("common.close")}>
             <CloseIcon />
           </button>
         </div>

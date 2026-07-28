@@ -10,16 +10,16 @@ export function LanguageSwitcher({ collapsed }: { collapsed?: boolean }) {
       <button
         className={`flag-button ${locale === "en" ? "flag-button-active" : ""}`}
         onClick={() => setLocale("en")}
-        title="English"
         aria-label="English"
+        data-tooltip="English"
       >
         🇬🇧
       </button>
       <button
         className={`flag-button ${locale === "fr" ? "flag-button-active" : ""}`}
         onClick={() => setLocale("fr")}
-        title="Français"
         aria-label="Français"
+        data-tooltip="Français"
       >
         🇫🇷
       </button>

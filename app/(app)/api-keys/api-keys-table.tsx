@@ -98,7 +98,11 @@ export function ApiKeysTable({ rows }: { rows: ApiKeyRow[] }) {
               <tr>
                 {columns.map((col) => (
                   <th key={col.key}>
-                    <button className="sortable-th" onClick={() => handleSort(col.key)}>
+                    <button
+                      className="sortable-th"
+                      onClick={() => handleSort(col.key)}
+                      data-tooltip={t("common.sortColumn")}
+                    >
                       {col.label}
                       <SortIcon active={sortKey === col.key} dir={sortDir} />
                     </button>

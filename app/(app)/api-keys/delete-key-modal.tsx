@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { getBrowserClient } from "@/lib/supabase-browser";
 import { useLocale } from "../locale-context";
 
@@ -20,7 +21,13 @@ export function DeleteKeyModal({
 
   async function handleDelete() {
     setBusy(true);
-    await getBrowserClient().from("api_keys").delete().eq("id", keyId);
+    const { error } = await getBrowserClient().from("api_keys").delete().eq("id", keyId);
+    if (error) {
+      toast.error(error.message);
+      setBusy(false);
+      return;
+    }
+    toast.success(t("toast.keyDeleted"));
     router.refresh();
     onClose();
   }

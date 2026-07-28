@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { createDocumentAction } from "./actions";
 import { useLocale } from "../../locale-context";
 
@@ -30,6 +31,7 @@ export function UploadMdForm({ projectId, onUploaded }: { projectId: string; onU
     setBusy(true);
     setUploads(files.map((f) => ({ name: f.name, status: "pending" as const })));
 
+    let errorCount = 0;
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       try {
@@ -37,6 +39,7 @@ export function UploadMdForm({ projectId, onUploaded }: { projectId: string; onU
         await createDocumentAction(projectId, file.name, content);
         setUploads((prev) => prev.map((u, idx) => (idx === i ? { ...u, status: "done" } : u)));
       } catch (err) {
+        errorCount++;
         const message = err instanceof Error ? err.message : String(err);
         setUploads((prev) => prev.map((u, idx) => (idx === i ? { ...u, status: "error", message } : u)));
       }
@@ -48,6 +51,11 @@ export function UploadMdForm({ projectId, onUploaded }: { projectId: string; onU
 
     if (skipped > 0) {
       setUploads((prev) => [...prev, { name: `${skipped} non-.md file(s)`, status: "error", message: "Skipped — only .md files are supported" }]);
+    }
+
+    if (files.length > 0) {
+      if (errorCount === 0) toast.success(t("toast.uploadComplete"));
+      else if (errorCount < files.length) toast.error(t("toast.uploadComplete"));
     }
   }
 

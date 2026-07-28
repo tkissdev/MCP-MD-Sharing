@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { getBrowserClient } from "@/lib/supabase-browser";
 import { formatAddMemberError } from "@/lib/member-errors";
 import { listProjectCandidateUsers } from "../../project-users-action";
@@ -56,6 +57,7 @@ export function AddProjectMemberForm({
     if (alreadyMember) {
       setLoading(false);
       setError(t("memberError.alreadyMember"));
+      toast.error(t("memberError.alreadyMember"));
       return;
     }
 
@@ -67,10 +69,13 @@ export function AddProjectMemberForm({
 
     setLoading(false);
     if (error) {
-      setError(formatAddMemberError(error.message, t));
+      const msg = formatAddMemberError(error.message, t);
+      setError(msg);
+      toast.error(msg);
       return;
     }
 
+    toast.success(t("toast.memberAdded"));
     setEmail("");
     setSuccess(true);
     router.refresh();

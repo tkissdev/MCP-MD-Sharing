@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { getBrowserClient } from "@/lib/supabase-browser";
 import { formatAddMemberError } from "@/lib/member-errors";
 import { listOrgCandidateUsers } from "./search-users-action";
@@ -50,6 +51,7 @@ export function AddOrgMemberForm({ orgId, onChanged }: { orgId: string; onChange
     if (alreadyMember) {
       setLoading(false);
       setError(t("memberError.alreadyMember"));
+      toast.error(t("memberError.alreadyMember"));
       return;
     }
 
@@ -61,10 +63,13 @@ export function AddOrgMemberForm({ orgId, onChanged }: { orgId: string; onChange
 
     setLoading(false);
     if (error) {
-      setError(formatAddMemberError(error.message, t));
+      const msg = formatAddMemberError(error.message, t);
+      setError(msg);
+      toast.error(msg);
       return;
     }
 
+    toast.success(t("toast.memberAdded"));
     setEmail("");
     setSuccess(true);
     router.refresh();

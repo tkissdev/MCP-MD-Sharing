@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { getBrowserClient } from "@/lib/supabase-browser";
 import { useLocale } from "../locale-context";
 
@@ -28,6 +29,7 @@ export function NewProjectForm({ orgs }: { orgs: { id: string; name: string }[] 
     if (error) {
       setLoading(false);
       setError(error.message);
+      toast.error(error.message);
       return;
     }
 
@@ -38,6 +40,7 @@ export function NewProjectForm({ orgs }: { orgs: { id: string; name: string }[] 
     await supabase.from("project_members").insert({ project_id: project.id, user_id: user!.id, role: "admin" });
 
     setLoading(false);
+    toast.success(t("toast.projectCreated"));
     router.push(`/projects/${project.id}`);
     router.refresh();
   }

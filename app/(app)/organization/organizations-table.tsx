@@ -111,7 +111,11 @@ export function OrganizationsTable({ rows }: { rows: OrgRow[] }) {
               <tr>
                 {columns.map((col) => (
                   <th key={col.key}>
-                    <button className="sortable-th" onClick={() => handleSort(col.key)}>
+                    <button
+                      className="sortable-th"
+                      onClick={() => handleSort(col.key)}
+                      data-tooltip={t("common.sortColumn")}
+                    >
                       {col.label}
                       <SortIcon active={sortKey === col.key} dir={sortDir} />
                     </button>
@@ -131,7 +135,8 @@ export function OrganizationsTable({ rows }: { rows: OrgRow[] }) {
                     <div className="row-actions">
                       <button
                         className="icon-btn"
-                        title={t("org.addMember")}
+                        aria-label={t("org.addMember")}
+                        data-tooltip={t("org.addMember")}
                         disabled={r.role === "member"}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -144,7 +149,8 @@ export function OrganizationsTable({ rows }: { rows: OrgRow[] }) {
                         <>
                           <button
                             className="icon-btn"
-                            title={t("org.editOrg")}
+                            aria-label={t("org.editOrg")}
+                            data-tooltip={t("org.editOrg")}
                             onClick={(e) => {
                               e.stopPropagation();
                               setEditing(r);
@@ -154,7 +160,8 @@ export function OrganizationsTable({ rows }: { rows: OrgRow[] }) {
                           </button>
                           <button
                             className="icon-btn icon-btn-danger"
-                            title={t("org.deleteOrg")}
+                            aria-label={t("org.deleteOrg")}
+                            data-tooltip={t("org.deleteOrg")}
                             onClick={(e) => {
                               e.stopPropagation();
                               setDeleting(r);

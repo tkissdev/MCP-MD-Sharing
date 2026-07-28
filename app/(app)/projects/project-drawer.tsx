@@ -20,7 +20,7 @@ export function ProjectDrawer({ project, onClose }: { project: ProjectRow; onClo
               <div className="drawer-eyebrow">{project.organizationName}</div>
               <h2>{project.name}</h2>
             </div>
-            <button className="icon-btn" onClick={onClose} aria-label={t("common.close")}>
+            <button className="icon-btn" onClick={onClose} aria-label={t("common.close")} data-tooltip={t("common.close")}>
               <CloseIcon />
             </button>
           </div>

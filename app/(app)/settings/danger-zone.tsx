@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { getBrowserClient } from "@/lib/supabase-browser";
 import { deleteAccountAction } from "./account-actions";
 import { useLocale } from "../locale-context";
@@ -19,10 +20,13 @@ export function DangerZone() {
     try {
       await deleteAccountAction();
       await getBrowserClient().auth.signOut();
+      toast.success(t("toast.accountDeleted"));
       router.push("/");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("settings.deleteAccountFail"));
+      const msg = err instanceof Error ? err.message : t("settings.deleteAccountFail");
+      setError(msg);
+      toast.error(msg);
       setBusy(false);
     }
   }

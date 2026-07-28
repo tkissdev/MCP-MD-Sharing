@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { updateDocumentAction } from "../../actions";
 import { useLocale } from "../../../../locale-context";
 
@@ -31,10 +32,13 @@ export function DocumentEditor({
 
     try {
       await updateDocumentAction(projectId, path, value, currentVersion, message || undefined);
+      toast.success(t("toast.versionSaved"));
       router.refresh();
       onSaved?.();
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg);
+      toast.error(msg);
     } finally {
       setSaving(false);
     }

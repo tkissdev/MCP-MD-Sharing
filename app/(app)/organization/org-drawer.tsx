@@ -39,7 +39,7 @@ export function OrgDrawer({ org, onClose }: { org: OrgRow; onClose: () => void }
               <div className="drawer-eyebrow">{t("org.membersTitle")}</div>
               <h2>{org.name}</h2>
             </div>
-            <button className="icon-btn" onClick={onClose} aria-label={t("common.close")}>
+            <button className="icon-btn" onClick={onClose} aria-label={t("common.close")} data-tooltip={t("common.close")}>
               <CloseIcon />
             </button>
           </div>

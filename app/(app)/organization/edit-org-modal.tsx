@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { renameOrganizationAction } from "./org-actions";
 import { useLocale } from "../locale-context";
 
@@ -26,10 +27,13 @@ export function EditOrgModal({
     setError(null);
     try {
       await renameOrganizationAction(orgId, name);
+      toast.success(t("toast.orgRenamed"));
       router.refresh();
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg);
+      toast.error(msg);
       setSaving(false);
     }
   }
@@ -39,7 +43,7 @@ export function EditOrgModal({
       <div className="modal-box" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>{t("org.editOrg")}</h2>
-          <button className="icon-btn" onClick={onClose} aria-label={t("common.close")}>
+          <button className="icon-btn" onClick={onClose} aria-label={t("common.close")} data-tooltip={t("common.close")}>
             <CloseIcon />
           </button>
         </div>

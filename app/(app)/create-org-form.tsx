@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { getBrowserClient } from "@/lib/supabase-browser";
 import { useLocale } from "./locale-context";
 
@@ -28,9 +29,11 @@ export function CreateOrgForm({
     setLoading(false);
     if (error) {
       setError(error.message);
+      toast.error(error.message);
       return;
     }
 
+    toast.success(t("toast.orgCreated"));
     setName("");
     if (onCreated) {
       router.refresh();

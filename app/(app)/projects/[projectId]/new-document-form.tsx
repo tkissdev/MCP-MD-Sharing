@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { createDocumentAction } from "./actions";
 import { useLocale } from "../../locale-context";
 
@@ -26,6 +27,7 @@ export function NewDocumentForm({
 
     try {
       await createDocumentAction(projectId, path, content);
+      toast.success(t("toast.documentCreated"));
       if (onCreated) {
         router.refresh();
         onCreated();
@@ -34,7 +36,9 @@ export function NewDocumentForm({
         router.refresh();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }

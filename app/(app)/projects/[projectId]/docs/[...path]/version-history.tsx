@@ -2,6 +2,7 @@
 
 import { Fragment, useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { restoreVersionAction } from "../../actions";
 import { getBrowserClient } from "@/lib/supabase-browser";
 import { computeInlineDiff, computeSideBySideDiff, type DiffRow } from "@/lib/diff-lines";
@@ -62,10 +63,13 @@ export function VersionHistory({
     setError(null);
     try {
       await restoreVersionAction(projectId, path, versionNumber, currentVersion);
+      toast.success(t("toast.versionRestored"));
       router.refresh();
       onRestored?.();
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg);
+      toast.error(msg);
     } finally {
       setBusy(false);
     }

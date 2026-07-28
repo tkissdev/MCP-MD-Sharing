@@ -96,7 +96,7 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
       <div className="sidebar-top">
         <Link href="/dashboard" className="sidebar-brand">
           <Image
-            src="/MCP-MD-Sharing-logo-transparent.png"
+            src="/MCP-MD-Sharing-logo-FullBlue-cutout.png"
             alt="MCP-MD-Sharing"
             width={collapsed ? 28 : 120}
             height={collapsed ? 28 : 120}
@@ -106,7 +106,7 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
           className="sidebar-toggle"
           onClick={toggle}
           aria-label={collapsed ? t("nav.expand") : t("nav.collapse")}
-          title={collapsed ? t("nav.expand") : t("nav.collapse")}
+          data-tooltip={collapsed ? t("nav.expand") : t("nav.collapse")}
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             {collapsed ? (
@@ -120,7 +120,7 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
 
       <div className="sidebar-account">
         <div className="sidebar-avatar-row">
-          <div className="sidebar-avatar" title={collapsed ? userEmail : undefined}>
+          <div className="sidebar-avatar" data-tooltip={collapsed ? userEmail : undefined}>
             {avatarLetter}
           </div>
           {!collapsed && <span className="sidebar-user-email">{userEmail}</span>}
@@ -137,7 +137,7 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
               key={l.href}
               href={l.href}
               className={`sidebar-link ${active ? "sidebar-link-active" : ""}`}
-              title={collapsed ? l.label : undefined}
+              data-tooltip={collapsed ? l.label : undefined}
             >
               {l.icon}
               {!collapsed && l.label}

@@ -154,7 +154,11 @@ export function ProjectsTable({
               <tr>
                 {columns.map((col) => (
                   <th key={col.key}>
-                    <button className="sortable-th" onClick={() => handleSort(col.key)}>
+                    <button
+                      className="sortable-th"
+                      onClick={() => handleSort(col.key)}
+                      data-tooltip={t("common.sortColumn")}
+                    >
                       {col.label}
                       <SortIcon active={sortKey === col.key} dir={sortDir} />
                     </button>
@@ -175,7 +179,8 @@ export function ProjectsTable({
                     <div className="row-actions">
                       <button
                         className="icon-btn"
-                        title={t("projects.addFiles")}
+                        aria-label={t("projects.addFiles")}
+                        data-tooltip={t("projects.addFiles")}
                         disabled={r.role === "reader"}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -186,7 +191,8 @@ export function ProjectsTable({
                       </button>
                       <button
                         className="icon-btn"
-                        title={t("project.manageMembers")}
+                        aria-label={t("project.manageMembers")}
+                        data-tooltip={t("project.manageMembers")}
                         disabled={r.role !== "admin"}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -199,7 +205,8 @@ export function ProjectsTable({
                         <>
                           <button
                             className="icon-btn"
-                            title={t("projects.editProject")}
+                            aria-label={t("projects.editProject")}
+                            data-tooltip={t("projects.editProject")}
                             onClick={(e) => {
                               e.stopPropagation();
                               setEditing(r);
@@ -209,7 +216,8 @@ export function ProjectsTable({
                           </button>
                           <button
                             className="icon-btn icon-btn-danger"
-                            title={t("projects.deleteProject")}
+                            aria-label={t("projects.deleteProject")}
+                            data-tooltip={t("projects.deleteProject")}
                             onClick={(e) => {
                               e.stopPropagation();
                               setDeleting(r);

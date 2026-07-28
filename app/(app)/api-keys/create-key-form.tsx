@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { getBrowserClient } from "@/lib/supabase-browser";
 import { useLocale } from "../locale-context";
 
@@ -60,9 +61,11 @@ export function CreateApiKeyForm({ onDone }: { onDone?: () => void }) {
     setLoading(false);
     if (error) {
       setError(error.message);
+      toast.error(error.message);
       return;
     }
 
+    toast.success(t("toast.keyCreated"));
     setCreatedKey(rawKey);
     setName("");
     router.refresh();

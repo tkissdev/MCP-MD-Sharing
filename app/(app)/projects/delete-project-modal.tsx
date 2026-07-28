@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { deleteProjectAction } from "./project-actions";
 import { useLocale } from "../locale-context";
 
@@ -24,10 +25,13 @@ export function DeleteProjectModal({
     setError(null);
     try {
       await deleteProjectAction(projectId);
+      toast.success(t("toast.projectDeleted"));
       router.refresh();
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg);
+      toast.error(msg);
       setBusy(false);
     }
   }

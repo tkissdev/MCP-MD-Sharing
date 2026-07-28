@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { toast } from "sonner";
 import { getBrowserClient } from "@/lib/supabase-browser";
 import { PublicLocaleProvider, usePublicLocale } from "../public-locale";
 import { SiteFooter } from "../site-footer";
@@ -59,6 +60,7 @@ function AuthForm() {
     });
     if (error) {
       setError(error.message || t("auth.errOAuth"));
+      toast.error(error.message || t("auth.errOAuth"));
       setGoogleLoading(false);
     }
   }
@@ -77,9 +79,11 @@ function AuthForm() {
 
     if (error) {
       setError(error.message || t("auth.errGeneric"));
+      toast.error(error.message || t("auth.errGeneric"));
       return;
     }
 
+    toast.success(isSignup ? t("toast.accountCreated") : t("toast.signedIn"));
     router.push("/dashboard");
     router.refresh();
   }
@@ -91,16 +95,16 @@ function AuthForm() {
         <button
           className={`flag-button ${locale === "en" ? "flag-button-active" : ""}`}
           onClick={() => setLocale("en")}
-          title="English"
           aria-label="English"
+          data-tooltip="English"
         >
           🇬🇧
         </button>
         <button
           className={`flag-button ${locale === "fr" ? "flag-button-active" : ""}`}
           onClick={() => setLocale("fr")}
-          title="Français"
           aria-label="Français"
+          data-tooltip="Français"
         >
           🇫🇷
         </button>
@@ -108,7 +112,7 @@ function AuthForm() {
 
       <div className="auth-content">
         <Link href="/" className="auth-logo">
-          <Image src="/MCP-MD-Sharing-logo-transparent.png" alt="MCP-MD-Sharing" width={160} height={160} priority />
+          <Image src="/MCP-MD-Sharing-logo-FullBlue-cutout.png" alt="MCP-MD-Sharing" width={160} height={160} priority />
         </Link>
 
         <div className="auth-card">

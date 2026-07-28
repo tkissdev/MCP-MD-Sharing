@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { getBrowserClient } from "@/lib/supabase-browser";
 import { useLocale } from "../locale-context";
 
@@ -20,8 +21,13 @@ export function RemoveOrgMemberButton({
 
   async function handleRemove() {
     setLoading(true);
-    await getBrowserClient().rpc("remove_org_member", { p_org_id: orgId, p_user_id: userId });
+    const { error } = await getBrowserClient().rpc("remove_org_member", { p_org_id: orgId, p_user_id: userId });
     setLoading(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success(t("toast.memberRemoved"));
     router.refresh();
     onChanged?.();
   }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { getBrowserClient } from "@/lib/supabase-browser";
 import { useLocale } from "../locale-context";
 
@@ -33,10 +34,12 @@ export function AccountSection({
 
     if (pw.length < 6) {
       setError(t("settings.pwTooShort"));
+      toast.error(t("settings.pwTooShort"));
       return;
     }
     if (pw !== pw2) {
       setError(t("settings.pwMismatch"));
+      toast.error(t("settings.pwMismatch"));
       return;
     }
 
@@ -45,10 +48,13 @@ export function AccountSection({
     setSaving(false);
 
     if (error) {
-      setError(error.message || t("settings.pwFail"));
+      const msg = error.message || t("settings.pwFail");
+      setError(msg);
+      toast.error(msg);
       return;
     }
 
+    toast.success(t("toast.passwordSaved"));
     setSuccess(true);
     setPw("");
     setPw2("");

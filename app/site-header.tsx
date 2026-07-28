@@ -10,7 +10,7 @@ export function SiteHeader() {
   return (
     <header className="landing-header">
       <Link href="/" className="landing-logo">
-        <Image src="/MCP-MD-Sharing-logo-transparent.png" alt="MCP-MD-Sharing" width={36} height={36} priority />
+        <Image src="/MCP-MD-Sharing-logo-FullBlue-cutout.png" alt="MCP-MD-Sharing" width={36} height={36} priority />
         <span className="landing-logo-text">MCP-MD-Sharing</span>
       </Link>
       <nav className="landing-nav">
@@ -18,16 +18,16 @@ export function SiteHeader() {
           <button
             className={`flag-button ${locale === "en" ? "flag-button-active" : ""}`}
             onClick={() => setLocale("en")}
-            title="English"
             aria-label="English"
+            data-tooltip="English"
           >
             🇬🇧
           </button>
           <button
             className={`flag-button ${locale === "fr" ? "flag-button-active" : ""}`}
             onClick={() => setLocale("fr")}
-            title="Français"
             aria-label="Français"
+            data-tooltip="Français"
           >
             🇫🇷
           </button>
