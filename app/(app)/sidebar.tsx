@@ -85,7 +85,7 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
       <div className="sidebar-top">
         <Link href="/dashboard" className="sidebar-brand">
           <Image
-            src="/MCP-MD-Sharing-logo1.png"
+            src="/MCP-MD-Sharing-logo-black.png"
             alt="MCP-MD-Sharing"
             width={collapsed ? 28 : 120}
             height={collapsed ? 28 : 120}

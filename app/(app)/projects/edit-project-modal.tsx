@@ -1,19 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { getBrowserClient } from "@/lib/supabase-browser";
 import { renameProjectAction, moveProjectOrgAction } from "./project-actions";
-import { AddProjectMemberForm } from "./[projectId]/members/add-member-form";
-import { RemoveProjectMemberButton } from "./[projectId]/members/remove-member-button";
 import { useLocale } from "../locale-context";
-import type { TranslationKey } from "@/lib/i18n/dictionary";
-
-interface Member {
-  user_id: string;
-  email: string;
-  role: string;
-}
 
 export function EditProjectModal({
   projectId,
@@ -38,19 +28,6 @@ export function EditProjectModal({
   const [orgId, setOrgId] = useState(organizationId);
   const [orgSaving, setOrgSaving] = useState(false);
   const [orgError, setOrgError] = useState<string | null>(null);
-
-  const [members, setMembers] = useState<Member[] | null>(null);
-  const [membersError, setMembersError] = useState<string | null>(null);
-
-  useEffect(() => {
-    loadMembers();
-  }, []);
-
-  async function loadMembers() {
-    const { data, error } = await getBrowserClient().rpc("list_project_members", { p_project_id: projectId });
-    if (error) setMembersError(error.message);
-    else setMembers(data ?? []);
-  }
 
   async function handleRename(e: React.FormEvent) {
     e.preventDefault();
@@ -128,23 +105,6 @@ export function EditProjectModal({
             </button>
           )}
         </form>
-
-        <h3 style={{ marginTop: 24 }}>{t("projects.membersTitle")}</h3>
-        {membersError && <p className="error">{membersError}</p>}
-        {members === null && !membersError && <p className="muted">…</p>}
-        {members?.map((m) => (
-          <div className="list-item" key={m.user_id}>
-            <div>
-              {m.email} <span className={`badge badge-${m.role}`}>{t(`role.${m.role}` as TranslationKey)}</span>
-            </div>
-            <RemoveProjectMemberButton projectId={projectId} userId={m.user_id} onChanged={loadMembers} />
-          </div>
-        ))}
-
-        <div style={{ marginTop: 12 }}>
-          <p className="muted">{t("members.hint")}</p>
-          <AddProjectMemberForm projectId={projectId} onChanged={loadMembers} />
-        </div>
       </div>
     </div>
   );

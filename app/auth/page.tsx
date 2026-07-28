@@ -108,7 +108,7 @@ function AuthForm() {
 
       <div className="auth-content">
         <Link href="/" className="auth-logo">
-          <Image src="/MCP-MD-Sharing-logo1.png" alt="MCP-MD-Sharing" width={160} height={160} priority />
+          <Image src="/MCP-MD-Sharing-logo-black.png" alt="MCP-MD-Sharing" width={160} height={160} priority />
         </Link>
 
         <div className="auth-card">

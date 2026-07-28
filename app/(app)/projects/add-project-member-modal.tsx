@@ -1,0 +1,39 @@
+"use client";
+
+import { AddProjectMemberForm } from "./[projectId]/members/add-member-form";
+import { useLocale } from "../locale-context";
+
+export function AddProjectMemberModal({
+  projectId,
+  onClose,
+  onChanged,
+}: {
+  projectId: string;
+  onClose: () => void;
+  onChanged?: () => void;
+}) {
+  const { t } = useLocale();
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h2>{t("members.add")}</h2>
+          <button className="icon-btn" onClick={onClose} aria-label={t("common.close")}>
+            <CloseIcon />
+          </button>
+        </div>
+        <p className="muted">{t("members.hint")}</p>
+        <AddProjectMemberForm projectId={projectId} onChanged={onChanged} />
+      </div>
+    </div>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M18 6 6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}

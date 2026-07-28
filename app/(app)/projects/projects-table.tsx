@@ -7,6 +7,7 @@ import { UploadModal } from "./upload-modal";
 import { EditProjectModal } from "./edit-project-modal";
 import { DeleteProjectModal } from "./delete-project-modal";
 import { NewProjectModal } from "./new-project-modal";
+import { ManageMembersModal } from "./manage-members-modal";
 import type { ProjectRole } from "@/lib/permissions";
 
 export interface ProjectDoc {
@@ -47,6 +48,7 @@ export function ProjectsTable({
   const [uploadFor, setUploadFor] = useState<ProjectRow | null>(null);
   const [editing, setEditing] = useState<ProjectRow | null>(null);
   const [deleting, setDeleting] = useState<ProjectRow | null>(null);
+  const [managingMembers, setManagingMembers] = useState<ProjectRow | null>(null);
   const [creating, setCreating] = useState(false);
 
   const orgs = useMemo(() => {
@@ -182,6 +184,17 @@ export function ProjectsTable({
                       >
                         <PlusIcon />
                       </button>
+                      <button
+                        className="icon-btn"
+                        title={t("project.manageMembers")}
+                        disabled={r.role !== "admin"}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setManagingMembers(r);
+                        }}
+                      >
+                        <MembersIcon />
+                      </button>
                       {r.role === "admin" && (
                         <>
                           <button
@@ -233,6 +246,14 @@ export function ProjectsTable({
         <DeleteProjectModal projectId={deleting.id} projectName={deleting.name} onClose={() => setDeleting(null)} />
       )}
 
+      {managingMembers && (
+        <ManageMembersModal
+          projectId={managingMembers.id}
+          projectName={managingMembers.name}
+          onClose={() => setManagingMembers(null)}
+        />
+      )}
+
       {creating && <NewProjectModal orgs={adminOrgs} onClose={() => setCreating(false)} />}
     </>
   );
@@ -251,6 +272,17 @@ function PlusIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M12 5v14M5 12h14" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function MembersIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="10" cy="7" r="4" />
+      <path d="M21 21v-2a4 4 0 0 0-3-3.87" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M15.5 3.13a4 4 0 0 1 0 7.75" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
