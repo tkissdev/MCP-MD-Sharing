@@ -17,7 +17,7 @@ async function sha256Hex(text: string): Promise<string> {
   return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-export function CreateApiKeyForm() {
+export function CreateApiKeyForm({ onDone }: { onDone?: () => void }) {
   const router = useRouter();
   const { t } = useLocale();
   const [name, setName] = useState("");
@@ -75,7 +75,7 @@ export function CreateApiKeyForm() {
         <pre className="card">{createdKey}</pre>
         <div className="row">
           <button onClick={handleCopy}>{copied ? t("common.copied") : t("common.copy")}</button>
-          <button onClick={() => setCreatedKey(null)}>{t("apiKeys.done")}</button>
+          <button onClick={() => (onDone ? onDone() : setCreatedKey(null))}>{t("apiKeys.done")}</button>
         </div>
       </div>
     );

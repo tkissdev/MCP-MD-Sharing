@@ -51,6 +51,16 @@ const icons = {
       />
     </svg>
   ),
+  settings: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="12" cy="12" r="3" />
+      <path
+        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  ),
 };
 
 export function Sidebar({ userEmail }: { userEmail?: string }) {
@@ -75,6 +85,7 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
     { href: "/search", label: t("nav.search"), icon: icons.search },
     { href: "/organization", label: t("nav.organization"), icon: icons.organization },
     { href: "/api-keys", label: t("nav.apiKeys"), icon: icons.apiKeys },
+    { href: "/settings", label: t("nav.settings"), icon: icons.settings },
     { href: "/docs", label: t("landing.docs"), icon: icons.docs },
   ];
 
@@ -85,7 +96,7 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
       <div className="sidebar-top">
         <Link href="/dashboard" className="sidebar-brand">
           <Image
-            src="/MCP-MD-Sharing-logo-black.png"
+            src="/MCP-MD-Sharing-logo-transparent.png"
             alt="MCP-MD-Sharing"
             width={collapsed ? 28 : 120}
             height={collapsed ? 28 : 120}

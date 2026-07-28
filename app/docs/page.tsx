@@ -213,7 +213,7 @@ function DocsFR() {
           app.
         </p>
 
-        <h3>Étape 1 — Créer une clé API</h3>
+        <h3 id="create-api-key">Étape 1 — Créer une clé API</h3>
         <ol>
           <li>
             Allez sur la page <a href="/api-keys">Paramètres et clés API</a>.
@@ -501,7 +501,7 @@ function DocsEN() {
           documents directly from your editor, with the same permissions as the web app.
         </p>
 
-        <h3>Step 1 — Create an API key</h3>
+        <h3 id="create-api-key">Step 1 — Create an API key</h3>
         <ol>
           <li>
             Go to the <a href="/api-keys">Settings & API Keys</a> page.
