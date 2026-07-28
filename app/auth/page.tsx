@@ -71,15 +71,28 @@ function AuthForm() {
     setError(null);
 
     const supabase = getBrowserClient();
-    const { error } = isSignup
+    const { data, error } = isSignup
       ? await supabase.auth.signUp({ email, password })
       : await supabase.auth.signInWithPassword({ email, password });
 
     setLoading(false);
 
     if (error) {
-      setError(error.message || t("auth.errGeneric"));
-      toast.error(error.message || t("auth.errGeneric"));
+      // Some Supabase error responses (e.g. a 500 from its own mail sender)
+      // don't carry a usable message string — fall back to the generic text
+      // instead of ever showing a raw/empty object to the visitor.
+      const message = error.message && error.message.trim().length > 0 ? error.message : t("auth.errGeneric");
+      setError(message);
+      toast.error(message);
+      return;
+    }
+
+    // Email confirmation is on for this project — signUp succeeds but
+    // returns no session until the link is clicked. Keep the email/password
+    // already typed and switch to the sign-in view instead of navigating.
+    if (isSignup && !data.session) {
+      toast.info(t("auth.confirmEmailSent"));
+      setIsSignup(false);
       return;
     }
 

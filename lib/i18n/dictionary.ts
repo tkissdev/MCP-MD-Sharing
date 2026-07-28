@@ -52,6 +52,7 @@ const dictionary = {
     "auth.toLogin": "Sign in",
     "auth.errOAuth": "Sign-in error",
     "auth.errGeneric": "Authentication error",
+    "auth.confirmEmailSent": "Account created! Check your inbox to confirm your email address, then sign in below.",
 
     "home.welcome": "Welcome",
     "home.notInOrg": "You're not part of an organization yet. Create one to get started.",
@@ -275,6 +276,7 @@ const dictionary = {
     "auth.toLogin": "Se connecter",
     "auth.errOAuth": "Erreur de connexion",
     "auth.errGeneric": "Erreur d'authentification",
+    "auth.confirmEmailSent": "Compte créé ! Vérifiez votre boîte mail pour confirmer votre adresse, puis connectez-vous ci-dessous.",
 
     "home.welcome": "Bienvenue",
     "home.notInOrg": "Vous ne faites partie d'aucune organisation pour l'instant. Créez-en une pour commencer.",
