@@ -6,7 +6,13 @@ import { toast } from "sonner";
 import { getBrowserClient } from "@/lib/supabase-browser";
 import { useLocale } from "../locale-context";
 
-export function NewProjectForm({ orgs }: { orgs: { id: string; name: string }[] }) {
+export function NewProjectForm({
+  orgs,
+  onCreated,
+}: {
+  orgs: { id: string; name: string }[];
+  onCreated: (projectId: string) => void;
+}) {
   const router = useRouter();
   const { t } = useLocale();
   const [name, setName] = useState("");
@@ -41,8 +47,8 @@ export function NewProjectForm({ orgs }: { orgs: { id: string; name: string }[] 
 
     setLoading(false);
     toast.success(t("toast.projectCreated"));
-    router.push(`/projects/${project.id}`);
     router.refresh();
+    onCreated(project.id);
   }
 
   return (

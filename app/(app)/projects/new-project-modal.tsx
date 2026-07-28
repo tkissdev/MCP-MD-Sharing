@@ -6,9 +6,11 @@ import { useLocale } from "../locale-context";
 export function NewProjectModal({
   orgs,
   onClose,
+  onCreated,
 }: {
   orgs: { id: string; name: string }[];
   onClose: () => void;
+  onCreated: (projectId: string) => void;
 }) {
   const { t } = useLocale();
 
@@ -21,7 +23,7 @@ export function NewProjectModal({
             <CloseIcon />
           </button>
         </div>
-        <NewProjectForm orgs={orgs} />
+        <NewProjectForm orgs={orgs} onCreated={onCreated} />
       </div>
     </div>
   );

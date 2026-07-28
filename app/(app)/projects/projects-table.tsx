@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocale } from "../locale-context";
 import { ProjectDrawer } from "./project-drawer";
 import { UploadModal } from "./upload-modal";
@@ -50,6 +50,27 @@ export function ProjectsTable({
   const [deleting, setDeleting] = useState<ProjectRow | null>(null);
   const [managingMembers, setManagingMembers] = useState<ProjectRow | null>(null);
   const [creating, setCreating] = useState(false);
+  const [pendingSelectId, setPendingSelectId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!pendingSelectId) return;
+    const row = rows.find((r) => r.id === pendingSelectId);
+    if (row) {
+      setSelected(row);
+      setPendingSelectId(null);
+    }
+  }, [rows, pendingSelectId]);
+
+  // Keep the open drawer's project data (in particular its document list) in
+  // sync whenever `rows` is refreshed from the server — otherwise the drawer
+  // keeps showing the stale snapshot taken when it was first opened.
+  useEffect(() => {
+    if (!selected) return;
+    const fresh = rows.find((r) => r.id === selected.id);
+    if (fresh && fresh !== selected) {
+      setSelected(fresh);
+    }
+  }, [rows, selected]);
 
   const orgs = useMemo(() => {
     const map = new Map<string, string>();
@@ -262,7 +283,16 @@ export function ProjectsTable({
         />
       )}
 
-      {creating && <NewProjectModal orgs={adminOrgs} onClose={() => setCreating(false)} />}
+      {creating && (
+        <NewProjectModal
+          orgs={adminOrgs}
+          onClose={() => setCreating(false)}
+          onCreated={(id) => {
+            setCreating(false);
+            setPendingSelectId(id);
+          }}
+        />
+      )}
     </>
   );
 }
