@@ -28,7 +28,7 @@ export async function createDocumentAction(projectId: string, path: string, cont
   });
   if (versionError) throw new Error(versionError.message);
 
-  await reindexDocumentSafe(doc.id, 1, content);
+  await reindexDocumentSafe(projectId, doc.id, 1, content);
   revalidatePath(`/projects/${projectId}`);
 }
 
@@ -70,7 +70,7 @@ export async function updateDocumentAction(
   }
 
   const row = Array.isArray(data) ? data[0] : data;
-  await reindexDocumentSafe(doc.id, row.version_number, content);
+  await reindexDocumentSafe(projectId, doc.id, row.version_number, content);
   revalidatePath(`/projects/${projectId}/docs/${path}`);
   return row.version_number as number;
 }

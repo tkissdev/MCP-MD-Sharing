@@ -1,17 +1,44 @@
-// Splits markdown into small, semantically coherent chunks for embedding.
+// Splits markdown into semantically coherent chunks for embedding.
 //
 // Strategy: split along ## section boundaries first, then pack each section's
-// paragraphs/lines/sentences into ~200-character chunks. Chunks always end at
-// a paragraph, line, or sentence boundary — never mid-sentence or mid-word —
-// even if that means a chunk comes out shorter than the target. Each chunk
-// after the first in a section repeats the previous chunk's last unit (a
-// small overlap) so a search hit near a boundary doesn't lose context.
+// content into ~1200-character chunks.
+//
+// Boundary rules (in priority order):
+//   1. A sentence is never split across two chunks.
+//   2. A paragraph is kept whole whenever it fits the budget; it is only
+//      broken down (into lines, then sentences) when it is too large to fit
+//      in a chunk on its own.
+//   3. The section heading is prepended to every chunk for context and does
+//      NOT count against the budget — otherwise a long heading would starve
+//      the chunk of actual content.
+//
+// Each chunk after the first in a section repeats the previous chunk's last
+// unit as overlap, so a hit near a boundary keeps its context — but only when
+// that unit is small, to avoid duplicating whole paragraphs.
 //
 // Known limitation: sentence splitting is punctuation-based and doesn't
 // special-case abbreviations (e.g. "e.g.", "Dr.") — acceptable for search
 // chunking, not meant to be a full NLP sentence tokenizer.
 
-const TARGET_CHARS = 200;
+const TARGET_CHARS = 1200;
+
+// Safety valve for pathological input (a minified blob or base64 payload on a
+// single line with no sentence punctuation). Prose never reaches this; without
+// it a single "sentence" could exceed the embedding model's input limit.
+const HARD_MAX_CHARS = 8000;
+
+// Overlap is only carried over when the trailing unit is at most this share of
+// the budget, so we never duplicate a large paragraph into the next chunk.
+const MAX_OVERLAP_RATIO = 0.25;
+
+type Joiner = "\n\n" | "\n" | " ";
+
+interface Unit {
+  text: string;
+  // How this unit attaches to the one before it, so packing preserves markdown
+  // structure instead of flattening lists and paragraphs into one line.
+  joiner: Joiner;
+}
 
 interface Section {
   heading: string | null;
@@ -60,53 +87,94 @@ function splitIntoSentences(text: string): string[] {
   return (matches ?? [normalized]).map((s) => s.trim()).filter(Boolean);
 }
 
-// A paragraph's lines are kept whole when they already fit the budget (so
-// list items stay intact); only a line longer than that gets split further,
-// by sentence.
-function paragraphToUnits(paragraph: string, budget: number): string[] {
+// Last-resort split for a "sentence" with no punctuation to break on. Splits on
+// whitespace so we still never cut mid-word.
+function hardSplit(text: string, budget: number): string[] {
+  const words = text.split(/\s+/).filter(Boolean);
+  const out: string[] = [];
+  let current = "";
+
+  for (const word of words) {
+    const candidate = current ? `${current} ${word}` : word;
+    if (candidate.length <= budget) {
+      current = candidate;
+    } else {
+      if (current) out.push(current);
+      current = word;
+    }
+  }
+  if (current) out.push(current);
+  return out;
+}
+
+// Breaks one paragraph into the largest units that still fit the budget:
+// the whole paragraph if possible, otherwise its lines, otherwise sentences.
+function paragraphToUnits(paragraph: string, budget: number): Unit[] {
+  if (paragraph.length <= budget) {
+    return [{ text: paragraph, joiner: "\n\n" }];
+  }
+
   const lines = paragraph
     .split("\n")
     .map((l) => l.trim())
     .filter(Boolean);
 
-  const units: string[] = [];
-  for (const line of lines) {
+  const units: Unit[] = [];
+  for (const [lineIndex, line] of lines.entries()) {
+    // The first line reattaches to the previous paragraph, later lines to the
+    // line above them.
+    const lineJoiner: Joiner = lineIndex === 0 ? "\n\n" : "\n";
+
     if (line.length <= budget) {
-      units.push(line);
-    } else {
-      units.push(...splitIntoSentences(line));
+      units.push({ text: line, joiner: lineJoiner });
+      continue;
+    }
+
+    for (const [sentenceIndex, sentence] of splitIntoSentences(line).entries()) {
+      const joiner: Joiner = sentenceIndex === 0 ? lineJoiner : " ";
+      if (sentence.length <= HARD_MAX_CHARS) {
+        units.push({ text: sentence, joiner });
+        continue;
+      }
+      for (const [pieceIndex, piece] of hardSplit(sentence, budget).entries()) {
+        units.push({ text: piece, joiner: pieceIndex === 0 ? joiner : " " });
+      }
     }
   }
+
   return units;
 }
 
-// Greedily packs units (paragraphs/lines/sentences, already boundary-safe)
-// into ~budget-character chunks, carrying the last unit of each chunk into
-// the next one as overlap.
-function packUnits(units: string[], budget: number): string[] {
+// Greedily packs boundary-safe units into ~budget-character chunks, carrying a
+// small trailing unit into the next chunk as overlap.
+function packUnits(units: Unit[], budget: number): string[] {
+  const maxOverlap = Math.floor(budget * MAX_OVERLAP_RATIO);
   const chunks: string[] = [];
   let current = "";
-  let lastUnit = "";
+  let lastUnit: Unit | null = null;
 
   for (const unit of units) {
     if (current.length === 0) {
-      current = unit;
+      current = unit.text;
       lastUnit = unit;
       continue;
     }
 
-    const candidate = `${current} ${unit}`;
+    const candidate = `${current}${unit.joiner}${unit.text}`;
     if (candidate.length <= budget) {
       current = candidate;
       lastUnit = unit;
-    } else {
-      chunks.push(current);
-      current = `${lastUnit} ${unit}`;
-      lastUnit = unit;
+      continue;
     }
-  }
-  if (current) chunks.push(current);
 
+    chunks.push(current);
+
+    const overlap = lastUnit && lastUnit.text.length <= maxOverlap ? lastUnit : null;
+    current = overlap ? `${overlap.text}${unit.joiner}${unit.text}` : unit.text;
+    lastUnit = unit;
+  }
+
+  if (current) chunks.push(current);
   return chunks;
 }
 
@@ -115,13 +183,14 @@ export function chunkMarkdown(content: string): string[] {
   const chunks: string[] = [];
 
   for (const section of sections) {
+    // The heading is context, not payload: it rides along with every chunk but
+    // never shrinks the room left for real content.
     const prefix = section.heading ? `## ${section.heading}\n\n` : "";
-    const budget = Math.max(TARGET_CHARS - prefix.length, 50);
 
-    const units = splitIntoParagraphs(section.body).flatMap((p) => paragraphToUnits(p, budget));
+    const units = splitIntoParagraphs(section.body).flatMap((p) => paragraphToUnits(p, TARGET_CHARS));
     if (units.length === 0) continue;
 
-    for (const piece of packUnits(units, budget)) {
+    for (const piece of packUnits(units, TARGET_CHARS)) {
       chunks.push(`${prefix}${piece}`);
     }
   }

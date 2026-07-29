@@ -44,7 +44,28 @@ export async function listDocuments(projectId: string) {
     .order("path");
 
   if (error) throw new Error(error.message);
-  return data;
+  if (!data || data.length === 0) return data;
+
+  // Reindexing is best-effort, so a document can be saved while its search
+  // chunks stay behind. Surface that instead of silently serving old text:
+  // the chunks keep the version_number they were built from.
+  const { data: chunkVersions } = await supabase
+    .from("chunks")
+    .select("document_id, version_number")
+    .eq("project_id", projectId);
+
+  const indexedVersion = new Map<string, number>();
+  for (const row of chunkVersions ?? []) {
+    const seen = indexedVersion.get(row.document_id);
+    if (seen === undefined || row.version_number > seen) {
+      indexedVersion.set(row.document_id, row.version_number);
+    }
+  }
+
+  return data.map((doc) => ({
+    ...doc,
+    search_index_stale: (indexedVersion.get(doc.id) ?? 0) < doc.current_version,
+  }));
 }
 
 export async function readDocument(projectId: string, path: string) {
@@ -108,7 +129,7 @@ export async function createDocument(
 
   if (versionError) throw new Error(versionError.message);
 
-  await reindexDocumentSafe(doc.id, 1, content);
+  await reindexDocumentSafe(projectId, doc.id, 1, content);
 
   return { path, version_number: 1 };
 }
@@ -171,7 +192,7 @@ export async function updateDocument(
   }
 
   const row = Array.isArray(data) ? data[0] : data;
-  await reindexDocumentSafe(documentId, row.version_number, content);
+  await reindexDocumentSafe(projectId, documentId, row.version_number, content);
   return { path, version_number: row.version_number };
 }
 

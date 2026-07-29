@@ -1,5 +1,14 @@
+// Rebuilds every document's search chunks from scratch. Run after changing
+// chunking rules or the embedding model:
+//
+//   node scripts/reindex-all.mjs
+//
+// Imports lib/chunking.ts directly (Node strips the types) so the chunking
+// rules can never drift from what the app itself uses.
 import { createClient } from "@supabase/supabase-js";
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
+import { chunkMarkdown } from "../lib/chunking.ts";
 
 for (const line of readFileSync(new URL("../.env.local", import.meta.url), "utf8").split("\n")) {
   const [key, ...rest] = line.split("=");
@@ -10,103 +19,32 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SER
   auth: { persistSession: false },
 });
 
-// Mirrors lib/chunking.ts (kept in sync manually since this script runs
-// standalone via plain Node, without a TypeScript build step).
-const TARGET_CHARS = 200;
+const BATCH_SIZE = 100;
 
-function splitByH2(content) {
-  const lines = content.split("\n");
-  const sections = [];
-  let heading = null;
-  let current = [];
-  let hasContent = false;
-
-  for (const line of lines) {
-    const match = /^##\s+(.*)/.exec(line);
-    if (match) {
-      if (hasContent || heading !== null) sections.push({ heading, body: current.join("\n") });
-      heading = match[1].trim();
-      current = [];
-      hasContent = false;
-    } else {
-      current.push(line);
-      if (line.trim().length > 0) hasContent = true;
-    }
+async function embedTexts(texts) {
+  const embeddings = [];
+  for (let i = 0; i < texts.length; i += BATCH_SIZE) {
+    const { data, error } = await supabase.functions.invoke("embed", {
+      // Base64: the WAF in front of Edge Functions rejects bodies containing
+      // strings like "'; DROP TABLE" or "<script>" that appear in real docs.
+      body: {
+        texts_b64: texts.slice(i, i + BATCH_SIZE).map((t) => Buffer.from(t, "utf8").toString("base64")),
+      },
+    });
+    if (error) throw new Error(error.message);
+    if (data.error) throw new Error(data.error);
+    embeddings.push(...data.embeddings);
   }
-  if (hasContent || heading !== null) sections.push({ heading, body: current.join("\n") });
-  return sections;
-}
-
-function splitIntoParagraphs(text) {
-  return text.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
-}
-
-function splitIntoSentences(text) {
-  const normalized = text.replace(/\s+/g, " ").trim();
-  if (!normalized) return [];
-  const matches = normalized.match(/[^.!?]+(?:[.!?]+(?=\s|$))?/g);
-  return (matches ?? [normalized]).map((s) => s.trim()).filter(Boolean);
-}
-
-function paragraphToUnits(paragraph, budget) {
-  const lines = paragraph.split("\n").map((l) => l.trim()).filter(Boolean);
-  const units = [];
-  for (const line of lines) {
-    if (line.length <= budget) {
-      units.push(line);
-    } else {
-      units.push(...splitIntoSentences(line));
-    }
-  }
-  return units;
-}
-
-function packUnits(units, budget) {
-  const chunks = [];
-  let current = "";
-  let lastUnit = "";
-
-  for (const unit of units) {
-    if (current.length === 0) {
-      current = unit;
-      lastUnit = unit;
-      continue;
-    }
-    const candidate = `${current} ${unit}`;
-    if (candidate.length <= budget) {
-      current = candidate;
-      lastUnit = unit;
-    } else {
-      chunks.push(current);
-      current = `${lastUnit} ${unit}`;
-      lastUnit = unit;
-    }
-  }
-  if (current) chunks.push(current);
-  return chunks;
-}
-
-function chunkMarkdown(content) {
-  const sections = splitByH2(content);
-  const chunks = [];
-
-  for (const section of sections) {
-    const prefix = section.heading ? `## ${section.heading}\n\n` : "";
-    const budget = Math.max(TARGET_CHARS - prefix.length, 50);
-
-    const units = splitIntoParagraphs(section.body).flatMap((p) => paragraphToUnits(p, budget));
-    if (units.length === 0) continue;
-
-    for (const piece of packUnits(units, budget)) chunks.push(`${prefix}${piece}`);
-  }
-
-  return chunks;
+  return embeddings;
 }
 
 const { data: documents, error: docsError } = await supabase
   .from("documents")
   .select("id, path, current_version, project_id");
 if (docsError) throw docsError;
+
+let totalChunks = 0;
+let failed = 0;
 
 for (const doc of documents) {
   try {
@@ -119,6 +57,10 @@ for (const doc of documents) {
     if (versionError) throw versionError;
 
     const pieces = chunkMarkdown(version.content);
+
+    // Embed before deleting, so a failure leaves the old index in place.
+    const embeddings = pieces.length > 0 ? await embedTexts(pieces) : [];
+
     await supabase.from("chunks").delete().eq("document_id", doc.id);
 
     if (pieces.length === 0) {
@@ -126,27 +68,26 @@ for (const doc of documents) {
       continue;
     }
 
-    const { data: embedData, error: embedError } = await supabase.functions.invoke("embed", {
-      body: { texts: pieces },
-    });
-    if (embedError) throw new Error(embedError.message);
-    if (embedData.error) throw new Error(embedData.error);
-
     const rows = pieces.map((text, i) => ({
+      project_id: doc.project_id,
       document_id: doc.id,
       version_number: doc.current_version,
       chunk_index: i,
       content: text,
-      embedding: embedData.embeddings[i],
+      content_hash: createHash("sha256").update(text).digest("hex"),
+      embedding: embeddings[i],
     }));
 
     const { error: insertError } = await supabase.from("chunks").insert(rows);
     if (insertError) throw new Error(insertError.message);
 
+    totalChunks += pieces.length;
     console.log(`indexed: ${doc.path} (${pieces.length} chunks)`);
   } catch (err) {
+    failed++;
     console.error(`failed: ${doc.path}: ${err.message}`);
   }
 }
 
-console.log("Done.");
+console.log(`\nDone. ${documents.length - failed}/${documents.length} documents, ${totalChunks} chunks.`);
+if (failed > 0) process.exitCode = 1;
