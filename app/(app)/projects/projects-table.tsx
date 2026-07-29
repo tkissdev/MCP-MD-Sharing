@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { getBrowserClient } from "@/lib/supabase-browser";
 import { useLocale } from "../locale-context";
 import { ProjectDrawer } from "./project-drawer";
 import { UploadModal } from "./upload-modal";
@@ -39,6 +41,7 @@ export function ProjectsTable({
   adminOrgs: { id: string; name: string }[];
 }) {
   const { t, locale } = useLocale();
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [orgFilter, setOrgFilter] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("name");
@@ -71,6 +74,35 @@ export function ProjectsTable({
       setSelected(fresh);
     }
   }, [rows, selected]);
+
+  // Live updates: changes made outside this browser tab (another tab, the MCP
+  // server, another user) don't otherwise notify this page, so it would keep
+  // showing stale data until a manual reload. Subscribe to Postgres changes
+  // and pull fresh server data whenever something relevant moves.
+  useEffect(() => {
+    const supabase = getBrowserClient();
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    let cancelled = false;
+
+    // postgres_changes is RLS-gated: Realtime needs the user's access token
+    // set on the socket before subscribing, or every change is filtered out
+    // as if no one were signed in.
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (cancelled) return;
+      if (session?.access_token) supabase.realtime.setAuth(session.access_token);
+
+      channel = supabase
+        .channel("projects-table-live")
+        .on("postgres_changes", { event: "*", schema: "public", table: "documents" }, () => router.refresh())
+        .on("postgres_changes", { event: "*", schema: "public", table: "projects" }, () => router.refresh())
+        .subscribe();
+    });
+
+    return () => {
+      cancelled = true;
+      if (channel) supabase.removeChannel(channel);
+    };
+  }, [router]);
 
   const orgs = useMemo(() => {
     const map = new Map<string, string>();
