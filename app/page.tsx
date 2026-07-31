@@ -65,6 +65,7 @@ function Landing() {
       <main className="landing-main">
         <section className="landing-hero">
           <div className="landing-hero-glow" />
+          <p className="landing-eyebrow">{t("landing.eyebrow")}</p>
           <h1>
             {t("landing.hero1")}
             <br />
